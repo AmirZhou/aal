@@ -1,29 +1,27 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { Stack } from "expo-router";
+import { ConvexProvider, ConvexReactClient } from "convex/react";
+import { StatusBar } from "expo-status-bar";
+
+const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
+  unsavedChangesWarning: false,
+})
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
-
-  if (!loaded) {
-    // Async font loading only occurs in development.
-    return null;
-  }
-
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
+    <ConvexProvider client={convex}>
+      <StatusBar style="dark" backgroundColor="#FEF8F5" />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: "#FEF8F5" }
+        }}
+      >
+        <Stack.Screen name="index" />
+        <Stack.Screen name="emergency" />
+        <Stack.Screen name="lawyers" />
+        <Stack.Screen name="legal-aid" />
       </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    </ConvexProvider>
   );
 }
