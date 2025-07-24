@@ -11,9 +11,8 @@ export const getAll = query({
 export const getBySpecialty = query({
   args: { specialty: v.string() },
   handler: async (ctx, args) => {
-    return await ctx.db.query("lawyers")
-      .filter(q => q.eq(q.field("specialties"), args.specialty))
-      .collect();
+    const allLawyers = await ctx.db.query("lawyers").collect();
+    return allLawyers.filter((lawyer) => lawyer.specialties.includes(args.specialty));
   }
 });
 

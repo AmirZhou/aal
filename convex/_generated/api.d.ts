@@ -18,7 +18,6 @@ import type * as lawyers from "../lawyers.js";
 import type * as legalAidServices from "../legalAidServices.js";
 import type * as legalResources from "../legalResources.js";
 import type * as seedData from "../seedData.js";
-import type * as tasks from "../tasks.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -34,7 +33,6 @@ declare const fullApi: ApiFromModules<{
   legalAidServices: typeof legalAidServices;
   legalResources: typeof legalResources;
   seedData: typeof seedData;
-  tasks: typeof tasks;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,
