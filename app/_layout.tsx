@@ -12,7 +12,10 @@ import { StatusBar } from "expo-status-bar";
 import { useFonts } from "expo-font";
 
 // react
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+
+// Components
+import CustomSplashScreen from "@/components/SplashScreen";
 
 const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
   unsavedChangesWarning: false,
@@ -25,19 +28,30 @@ const secureStorage = {
 }
 
 export default function RootLayout() {
-  const [ loaded, error ] = useFonts({
+  const [loaded, error] = useFonts({
     'PublicSans-Italic-Variable': require('../assets/fonts/PublicSans-Italic-VariableFont_wght.ttf'),
     'PublicSans-Variable': require('../assets/fonts/PublicSans-VariableFont_wght.ttf'),
   });
+  const [showSplash, setShowSplash] = useState(true);
   
   useEffect(() => {
-    if (loaded || error ) {
+    if (loaded || error) {
       SplashScreen.hideAsync();
+      // Show custom splash for 2 seconds
+      setTimeout(() => {
+        setShowSplash(false);
+      }, 8000);
     }
-  }, [loaded, error])
+  }, [loaded, error]);
   
-  if(!loaded && !error) {
+  // Show native splash while fonts load
+  if (!loaded && !error) {
     return null;
+  }
+  
+  // Show custom splash screen
+  if (showSplash) {
+    return <CustomSplashScreen />;
   }
   
   return (
