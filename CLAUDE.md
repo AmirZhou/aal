@@ -125,3 +125,58 @@ The app includes comprehensive seed data for Alberta legal resources. Seeding is
 - Web deployment outputs static files with Metro bundler
 - Requires Convex deployment for backend functionality
 - Authentication requires proper domain configuration in auth.config.js
+
+## Current Implementation Status
+- **Authentication**: Google Auth configured with @convex-dev/auth and SecureStore
+- **Data Seeding**: Automatic seeding triggers on first load when no categories exist (app/index.tsx:14-20)
+- **Platform Support**: iOS, Android, and Web with platform-specific storage handling
+- **Navigation**: Stack navigation with custom headerless screens and warm background (#FEF8F5)
+- **App State**: Currently on 'auth' branch with recent commits for signin functionality
+
+## Critical Architecture Patterns
+
+### Platform-Specific Storage Integration
+```typescript
+// _layout.tsx storage pattern
+const secureStorage = {
+  getItem: SecureStore.getItemAsync,
+  setItem: SecureStore.setItemAsync,
+  removeItem: SecureStore.deleteItemAsync
+}
+
+// Conditional storage based on platform
+storage={
+  Platform.OS == "android" || Platform.OS == "ios"
+    ? secureStorage
+    : undefined  // Web uses default localStorage
+}
+```
+
+### Auto-Seeding Pattern
+The app automatically seeds data on first load. This is triggered in `app/index.tsx` when no categories exist, preventing empty states on first run.
+
+### Convex Client Configuration
+- Convex client configured with `unsavedChangesWarning: false` for mobile UX
+- Environment variable `EXPO_PUBLIC_CONVEX_URL` is required for client connection
+- Auth domain configuration through `CONVEX_SITE_URL` in auth.config.js
+
+### Theme Integration Pattern
+All components should use the centralized theme from `constants/theme.ts`. The theme provides:
+- Consistent spacing scale (xs: 4px → xxl: 48px)
+- Typography scale with semantic font weights
+- Border radius scale for consistent visual hierarchy
+- Color palette with semantic naming (primary, background, text, textSecondary, etc.)
+
+## Development Workflow
+
+### Expo Router File-Based Routing
+- All screens in `app/` directory are automatically routed
+- Current screens: index, emergency, lawyers, legal-aid
+- Stack configuration in `_layout.tsx` with `headerShown: false` for custom navigation
+- Use `router.push('/screen-name')` for navigation
+
+### Database Operations
+- Use `useQuery(api.tableName.functionName)` for data fetching
+- Use `useMutation(api.tableName.functionName)` for data modifications
+- All operations are type-safe with generated Convex API types
+- Query results automatically re-render components on data changes
