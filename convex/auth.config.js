@@ -1,8 +1,11 @@
+
+
   export default {
     providers: [
-    {
-      "domain": "https://your-app.convex.site",
-      "applicationID": "convex"
-    }
-  ],
+      {
+        domain: process.env.CONVEX_SITE_URL,
+        applicationID: "convex",
+      },
+    ],
   };
+  
