@@ -1,7 +1,67 @@
+import { authTables } from "@convex-dev/auth/server";
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
+  // Authentication tables
+  ...authTables,
+  
+  // User management tables  
+  userProfiles: defineTable({
+    userId: v.id("users"),
+    location: v.optional(v.object({
+      city: v.string(),
+      province: v.string(),
+      postalCode: v.optional(v.string()),
+    })),
+    legalInterests: v.array(v.string()),
+    preferredLanguages: v.array(v.string()),
+    notificationPreferences: v.object({
+      email: v.boolean(),
+      push: v.boolean(),
+      sms: v.boolean(),
+    }),
+    searchRadius: v.optional(v.number()), // in kilometers
+    updatedAt: v.number(),
+  }).index("by_user", ["userId"]),
+  
+  userFavorites: defineTable({
+    userId: v.id("users"),
+    itemType: v.string(), // "lawyer", "legalAidService", "legalResource"
+    itemId: v.string(),
+    addedAt: v.number(),
+    notes: v.optional(v.string()),
+  }).index("by_user", ["userId"])
+    .index("by_user_and_type", ["userId", "itemType"])
+    .index("by_user_and_item", ["userId", "itemId"]),
+  
+  userSearchHistory: defineTable({
+    userId: v.id("users"),
+    searchType: v.string(), // "lawyer", "legalAid", "resource"
+    searchQuery: v.optional(v.string()),
+    filters: v.object({
+      specialty: v.optional(v.array(v.string())),
+      location: v.optional(v.string()),
+      acceptsLegalAid: v.optional(v.boolean()),
+      languages: v.optional(v.array(v.string())),
+      rating: v.optional(v.number()),
+    }),
+    resultsCount: v.number(),
+    clickedResults: v.array(v.string()),
+    searchedAt: v.number(),
+  }).index("by_user", ["userId"])
+    .index("by_user_and_type", ["userId", "searchType"]),
+  
+  userRecommendations: defineTable({
+    userId: v.id("users"),
+    itemType: v.string(),
+    itemId: v.string(),
+    relevanceScore: v.number(),
+    reasons: v.array(v.string()),
+    generatedAt: v.number(),
+    clicked: v.boolean(),
+  }).index("by_user", ["userId"])
+    .index("by_user_and_type", ["userId", "itemType"]),
   legalResources: defineTable({
     title: v.string(),
     description: v.string(),
