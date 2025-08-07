@@ -12,7 +12,7 @@ import { StatusBar } from "expo-status-bar";
 import { useFonts } from "expo-font";
 
 // react
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 // Components
 import CustomSplashScreen from "@/components/SplashScreen";
@@ -32,26 +32,17 @@ export default function RootLayout() {
     'PublicSans-Italic-Variable': require('../assets/fonts/PublicSans-Italic-VariableFont_wght.ttf'),
     'PublicSans-Variable': require('../assets/fonts/PublicSans-VariableFont_wght.ttf'),
   });
-  const [showSplash, setShowSplash] = useState(true);
   
   useEffect(() => {
-    if (loaded || error) {
-      SplashScreen.hideAsync();
-      // Show custom splash for 2 seconds
-      setTimeout(() => {
-        setShowSplash(false);
-      }, 8000);
-    }
-  }, [loaded, error]);
+    SplashScreen.hideAsync();
+  }, []);
   
   // Show native splash while fonts load
   if (!loaded && !error) {
-    return null;
+    return <CustomSplashScreen fontsLoaded={false}/>;
   }
-  
-  // Show custom splash screen
-  if (showSplash) {
-    return <CustomSplashScreen />;
+  if (!loaded && error) {
+    return <CustomSplashScreen fontsLoaded={true}/>;
   }
   
   return (
