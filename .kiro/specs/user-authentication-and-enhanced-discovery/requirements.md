@@ -90,4 +90,4 @@ The feature addresses two critical business needs: establishing user identity an
 4. WHEN connectivity is restored THEN the system SHALL automatically sync any pending changes and update cached content
 5. IF there are sync conflicts THEN the system SHALL resolve them intelligently or prompt the user for resolution
 6. WHEN a user's favorites or profile changes THEN the system SHALL prioritize syncing this critical data
-7. WHEN offline THEN the system SHALL still allow users to view their favorites and recently accessed information
+7. WHEN offline THEN the system SHAL
