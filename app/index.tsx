@@ -1,10 +1,13 @@
-import { api } from "@/convex/_generated/api";
-import { useQuery, useMutation } from "convex/react";
-import { Text, View, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView } from "react-native";
+import { Divider } from "@/components/ui/divider";
+import { Heading } from "@/components/ui/heading";
 import { theme } from "@/constants/theme";
+import { api } from "@/convex/_generated/api";
 import { Ionicons } from "@expo/vector-icons";
+import { useMutation, useQuery } from "convex/react";
 import { router } from "expo-router";
 import { useEffect } from "react";
+import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+
 
 export default function Index() {
   const categories = useQuery(api.categories.getAll);
@@ -40,7 +43,7 @@ export default function Index() {
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>Access Alberta Legal</Text>
+          <Heading size="3xl">Access Alberta Legal</Heading>
           <Text style={styles.subtitle}>
             Connect with legal resources, lawyers, and legal aid services across Alberta
           </Text>
