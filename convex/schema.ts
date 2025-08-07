@@ -4,6 +4,7 @@ import { v } from "convex/values";
 
 export default defineSchema({
   // Authentication tables
+  // auth step 3: employ the auth tables.
   ...authTables,
   
   // User management tables  
