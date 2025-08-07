@@ -1,9 +1,12 @@
-
+// Auth imports
+import { Platform } from "react-native";
 import { ConvexAuthProvider } from "@convex-dev/auth/react";
-import { ConvexProvider, ConvexReactClient } from "convex/react";
+import { ConvexReactClient } from "convex/react";
+import * as SecureStore from "expo-secure-store";
+
+// UI
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import * as SecureStore from "expo-secure-store";
 
 const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
   unsavedChangesWarning: false,
@@ -19,8 +22,12 @@ export default function RootLayout() {
   return (
       <ConvexAuthProvider 
         client={convex}
-        storage={undefined}
-        >
+        storage={
+          Platform.OS == "android" || Platform.OS == "ios"
+            ? secureStorage
+            : undefined
+        }
+      >
           <StatusBar style="dark" backgroundColor="#FEF8F5" />
           <Stack
             screenOptions={{
