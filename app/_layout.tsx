@@ -1,9 +1,8 @@
 // Auth imports
 import { ConvexAuthProvider } from "@convex-dev/auth/react";
-import { ConvexReactClient } from "convex/react";
+import { Authenticated, AuthLoading, ConvexReactClient, Unauthenticated } from "convex/react";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
-
 
 
 // View
@@ -18,6 +17,7 @@ import { useEffect, useState } from "react";
 
 // Components
 import CustomSplashScreen from "@/components/SplashScreen";
+import WelcomeScreen from "./(onBoarding)/welcome";
 
 const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
   unsavedChangesWarning: false,
@@ -78,18 +78,34 @@ export default function RootLayout() {
             : undefined
         }
       >
+
           <StatusBar style="dark" backgroundColor="#FEF8F5" />
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: "#FEF8F5" }
-            }}
-          >
-            <Stack.Screen name="index" />
-            <Stack.Screen name="emergency" />
-            <Stack.Screen name="lawyers" />
-            <Stack.Screen name="legal-aid" />
-          </Stack>
+          
+
+
+          <AuthLoading>Loading</AuthLoading>
+          
+          <Unauthenticated>
+            <WelcomeScreen />
+          </Unauthenticated>
+
+          {/* <Authenticated>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                contentStyle: { backgroundColor: "#FEF8F5" }
+              }}
+            >
+              <Stack.Screen name="index" />
+              <Stack.Screen name="emergency" />
+              <Stack.Screen name="lawyers" />
+              <Stack.Screen name="legal-aid" />
+            </Stack>
+          </Authenticated> */}
+          
+
+
+
       </ConvexAuthProvider>
   );
 }
