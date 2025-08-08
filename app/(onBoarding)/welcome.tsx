@@ -1,7 +1,9 @@
-import { View, Text, StyleSheet } from 'react-native';
-import { router } from 'expo-router';
+import { Button, ButtonText } from "@/components/ui/button";
 import { theme } from '@/constants/theme';
-
+import { router } from 'expo-router';
+import { StyleSheet, View } from 'react-native';
+import { Text } from "@/components/ui/text";
+	
 export default function WelcomeScreen() {
   const handleNext = () => {
     router.push('/(onBoarding)/features');
@@ -13,19 +15,15 @@ export default function WelcomeScreen() {
 
   return (
     <View style={styles.container}>
+
+      // carousal goes here
       <View style={styles.content}>
-        <Text style={styles.title}>Welcome Screen</Text>
-        <Text style={styles.subtitle}>Placeholder for welcome content</Text>
+        <Text size="md">Welcome Screen</Text>
       </View>
-      
-      <View style={styles.buttonContainer}>
-        <Text style={styles.skipButton} onPress={handleSkip}>
-          Skip
-        </Text>
-        <Text style={styles.nextButton} onPress={handleNext}>
-          Next
-        </Text>
-      </View>
+
+      <Button size='md' variant='solid' action='primary'>
+        <ButtonText>Test Button</ButtonText>
+      </Button>      
     </View>
   );
 }
