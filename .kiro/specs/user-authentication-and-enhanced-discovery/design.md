@@ -2,9 +2,15 @@
 
 ## Overview
 
-This design document outlines the implementation of user authentication and enhanced lawyer discovery features for the Access Alberta Legal mobile application. The design builds upon the existing React Native + Expo + Convex architecture while introducing sophisticated user management, personalization capabilities, and professional UI polish.
+This design document outlines the implementation of user authentication and enhanced lawyer discovery features for the Access Alberta Legal mobile application. The design builds upon the existing React Native + Expo + Convex architecture while introducing sophisticated user management, personalization capabilities, professional UI polish, and robust offline functionality.
 
-The solution leverages Convex's built-in authentication system for secure user management, implements intelligent recommendation algorithms for lawyer discovery, and introduces Rive animations for professional user experience. The design maintains the existing clean architecture while extending it with new data models and user-centric features.
+The solution leverages Convex's built-in authentication system for secure user management, implements intelligent recommendation algorithms for lawyer discovery, introduces Rive animations for professional user experience, and provides comprehensive offline capabilities with intelligent data synchronization. The design maintains the existing clean architecture while extending it with new data models, user-centric features, and guest access options.
+
+**Key Design Decisions:**
+- **Guest Access Support**: Users can explore the app without authentication while maintaining upgrade paths to full accounts
+- **Intelligent Caching Strategy**: Prioritizes user-critical data (favorites, profile) for offline access while maintaining performance
+- **Progressive Enhancement**: Core functionality works offline with enhanced features available when online
+- **Privacy-First Approach**: User data is encrypted and anonymized where possible, with full GDPR compliance
 
 ## Architecture
 
@@ -14,31 +20,43 @@ The solution leverages Convex's built-in authentication system for secure user m
 graph TB
     subgraph "Client Layer (React Native + Expo)"
         A[Authentication Screens] --> B[Main App Navigation]
+        A1[Guest Access] --> B
         B --> C[Enhanced Lawyer Discovery]
         B --> D[User Profile Management]
         B --> E[Favorites System]
-        C --> F[Personalization Engine]
+        B --> F[Offline Cache Manager]
+        C --> G[Personalization Engine]
+        F --> H[Sync Queue Manager]
     end
     
     subgraph "Backend Layer (Convex)"
-        G[Auth Provider] --> H[User Management]
-        H --> I[Profile Service]
-        I --> J[Recommendation Engine]
-        J --> K[Favorites Service]
-        K --> L[Data Sync Service]
+        I[Auth Provider] --> J[User Management]
+        J --> K[Profile Service]
+        K --> L[Recommendation Engine]
+        L --> M[Favorites Service]
+        M --> N[Data Sync Service]
+        N --> O[Notification Service]
     end
     
     subgraph "Data Layer"
-        M[Users Table] --> N[UserProfiles Table]
-        N --> O[UserFavorites Table]
-        O --> P[UserSearchHistory Table]
-        P --> Q[Existing Tables]
+        P[Users Table] --> Q[UserProfiles Table]
+        Q --> R[UserFavorites Table]
+        R --> S[UserSearchHistory Table]
+        S --> T[UserRecommendations Table]
+        T --> U[Existing Tables]
     end
     
-    A --> G
-    C --> J
-    D --> I
-    E --> K
+    subgraph "Local Storage"
+        V[Cached Content] --> W[Offline Queue]
+        W --> X[User Preferences]
+    end
+    
+    A --> I
+    C --> L
+    D --> K
+    E --> M
+    F --> V
+    H --> N
 ```
 
 ### Authentication Flow
@@ -49,20 +67,27 @@ sequenceDiagram
     participant A as Auth Screen
     participant C as Convex Auth
     participant D as Database
+    participant M as Main App
     
     U->>A: Open App
     A->>C: Check Session
     alt Session Valid
         C->>A: Return User Data
-        A->>U: Navigate to Main App
+        A->>M: Navigate to Main App (Authenticated)
     else No Session
-        A->>U: Show Auth Options
-        U->>A: Sign In/Sign Up
-        A->>C: Authenticate
-        C->>D: Create/Verify User
-        D->>C: Return User Data
-        C->>A: Auth Success
-        A->>U: Navigate to Main App
+        A->>U: Show Auth Options (Sign In/Sign Up/Guest)
+        alt User Chooses Authentication
+            U->>A: Sign In/Sign Up
+            A->>C: Authenticate
+            C->>D: Create/Verify User
+            D->>C: Return User Data
+            C->>A: Auth Success
+            A->>M: Navigate to Main App (Authenticated)
+        else User Chooses Guest
+            U->>A: Continue as Guest
+            A->>M: Navigate to Main App (Guest Mode)
+            Note over M: Limited features, no personalization
+        end
     end
 ```
 
@@ -104,6 +129,26 @@ sequenceDiagram
   - `handleProfileUpdate()`: Saves profile changes
   - `handleLocationUpdate()`: Updates location preferences
   - `handleInterestsUpdate()`: Manages legal interest preferences
+  - `handleNotificationPreferences()`: Updates notification settings
+  - `handleAccountDeletion()`: Processes secure account deletion
+
+#### PasswordResetScreen
+- **Purpose**: Secure password reset functionality
+- **Props**: Navigation props, reset token (if deep linked)
+- **State**: Email input, reset status, validation errors
+- **Methods**:
+  - `sendResetEmail()`: Initiates password reset process
+  - `validateResetToken()`: Verifies reset token validity
+  - `updatePassword()`: Updates password with new credentials
+
+#### GuestModeManager
+- **Purpose**: Manages guest user experience and upgrade prompts
+- **Props**: Current screen context, available features
+- **State**: Guest limitations, upgrade prompts shown
+- **Methods**:
+  - `checkFeatureAccess()`: Determines if feature is available to guests
+  - `showUpgradePrompt()`: Displays contextual upgrade messaging
+  - `handleGuestToUserUpgrade()`: Manages transition from guest to authenticated user
 
 ### Enhanced Discovery Components
 
@@ -156,6 +201,55 @@ sequenceDiagram
   - `animateTransition()`: Executes screen transitions
   - `animateMicroInteraction()`: Handles button/card animations
   - `animateListItems()`: Staggered list item animations
+
+### Offline Capability Components
+
+#### OfflineCacheManager
+- **Purpose**: Manages local data caching and offline access
+- **Props**: Cache configuration, data priorities
+- **State**: Cache status, available offline data, storage usage
+- **Methods**:
+  - `cacheEssentialData()`: Stores critical user data locally
+  - `getCachedContent()`: Retrieves offline-available content
+  - `manageCacheSize()`: Optimizes storage usage
+  - `clearExpiredCache()`: Removes outdated cached data
+
+#### SyncQueueManager
+- **Purpose**: Handles offline operations and synchronization
+- **Props**: Network status, pending operations
+- **State**: Sync queue, conflict resolution status
+- **Methods**:
+  - `queueOfflineOperation()`: Adds operations to sync queue
+  - `processSyncQueue()`: Executes queued operations when online
+  - `resolveConflicts()`: Handles data synchronization conflicts
+  - `prioritizeUserData()`: Ensures critical data syncs first
+
+#### NetworkStatusIndicator
+- **Purpose**: Displays current connectivity status and offline capabilities
+- **Props**: Network state, offline features available
+- **State**: Connection status, offline mode indicators
+- **Methods**:
+  - `showOfflineStatus()`: Displays offline mode indicators
+  - `indicateDataFreshness()`: Shows when data was last updated
+  - `displaySyncProgress()`: Shows synchronization progress
+
+### Backend Services
+
+#### NotificationService
+- **Purpose**: Manages user notifications for favorites updates and system events
+- **Responsibilities**:
+  - Tracks changes to favorited lawyers and legal services
+  - Sends push notifications for relevant updates (new reviews, availability changes)
+  - Manages notification preferences and delivery channels
+  - Handles notification scheduling and batching
+
+#### DataSyncService
+- **Purpose**: Coordinates data synchronization between client and server
+- **Responsibilities**:
+  - Manages conflict resolution for simultaneous edits
+  - Prioritizes critical user data (favorites, profile) for sync
+  - Handles offline operation queuing and replay
+  - Ensures data consistency across user devices
 
 ## Data Models
 
@@ -425,6 +519,46 @@ describe('Animation Performance', () => {
     const metrics = performanceMonitor.getMetrics();
     expect(metrics.averageFPS).toBeGreaterThan(58);
     expect(metrics.droppedFrames).toBeLessThan(5);
+  });
+});
+```
+
+### Offline Functionality Testing
+
+```typescript
+// Offline capability testing
+describe('Offline Functionality', () => {
+  it('should cache essential data and work offline', async () => {
+    // Load data while online
+    await loadUserFavorites();
+    await loadRecentSearches();
+    
+    // Simulate offline mode
+    mockNetworkStatus(false);
+    
+    // Verify cached data is accessible
+    const cachedFavorites = await getCachedFavorites();
+    expect(cachedFavorites).toBeDefined();
+    expect(cachedFavorites.length).toBeGreaterThan(0);
+    
+    // Test offline operations queuing
+    await addToFavoritesOffline('lawyer-123');
+    const queuedOperations = getQueuedOperations();
+    expect(queuedOperations).toContain('ADD_FAVORITE');
+  });
+  
+  it('should sync queued operations when back online', async () => {
+    // Queue operations while offline
+    mockNetworkStatus(false);
+    await addToFavoritesOffline('lawyer-456');
+    
+    // Go back online
+    mockNetworkStatus(true);
+    await syncQueuedOperations();
+    
+    // Verify operations were synced
+    const serverFavorites = await getServerFavorites();
+    expect(serverFavorites).toContain('lawyer-456');
   });
 });
 ```

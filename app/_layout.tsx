@@ -4,6 +4,8 @@ import { ConvexReactClient } from "convex/react";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 
+
+
 // View
 import { SplashScreen, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -12,7 +14,7 @@ import { StatusBar } from "expo-status-bar";
 import { useFonts } from "expo-font";
 
 // react
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 // Components
 import CustomSplashScreen from "@/components/SplashScreen";
@@ -32,17 +34,39 @@ export default function RootLayout() {
     'PublicSans-Italic-Variable': require('../assets/fonts/PublicSans-Italic-VariableFont_wght.ttf'),
     'PublicSans-Variable': require('../assets/fonts/PublicSans-VariableFont_wght.ttf'),
   });
+  const [appReady, setAppReady] = useState(false);
   
   useEffect(() => {
-    SplashScreen.hideAsync();
-  }, []);
+    async function prepare() {
+      try {
+        // Ensure minimum splash duration for smooth UX
+        const minDuration = new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // Wait for both fonts and minimum duration
+        await Promise.all([
+          loaded || error ? Promise.resolve() : new Promise(resolve => {}),
+          minDuration
+        ]);
+        
+        // Hide native splash and show app
+        await SplashScreen.hideAsync();
+        setAppReady(true);
+      } catch (e) {
+        console.warn('Error during app initialization:', e);
+        // Fallback: show app even if there's an error
+        await SplashScreen.hideAsync();
+        setAppReady(true);
+      }
+    }
+    
+    if (loaded || error) {
+      prepare();
+    }
+  }, [loaded, error]);
   
-  // Show native splash while fonts load
-  if (!loaded && !error) {
-    return <CustomSplashScreen fontsLoaded={false}/>;
-  }
-  if (!loaded && error) {
-    return <CustomSplashScreen fontsLoaded={true}/>;
+  // Show custom splash until app is ready
+  if (!appReady) {
+    return <CustomSplashScreen />;
   }
   
   return (

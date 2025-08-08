@@ -1,11 +1,39 @@
-import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
+import { Ionicons } from '@expo/vector-icons';
+import { useEffect, useRef } from 'react';
+import { ActivityIndicator, Animated, StyleSheet, Text, View } from 'react-native';
 
 export default function SplashScreen() {
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+  const scaleAnim = useRef(new Animated.Value(0.8)).current;
+  
+  useEffect(() => {
+    // Entrance animation
+    Animated.parallel([
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
+
   return (
     <View style={styles.container}>
-      <View style={styles.content}>
+      <Animated.View 
+        style={[
+          styles.content,
+          {
+            opacity: fadeAnim,
+            transform: [{ scale: scaleAnim }],
+          },
+        ]}
+      >
         {/* App Icon */}
         <View style={styles.iconContainer}>
           <Ionicons 
@@ -25,7 +53,7 @@ export default function SplashScreen() {
           color={theme.colors.primary}
           style={styles.loader}
         />
-      </View>
+      </Animated.View>
     </View>
   );
 }

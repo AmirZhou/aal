@@ -1,7 +1,6 @@
 # Implementation Plan
 
 - [ ] 1. Set up Convex authentication and user management foundation
-  - Configure Convex authentication provider with email/password support
   - Create extended database schema with users, userProfiles, userFavorites, and userSearchHistory tables
   - Implement basic authentication mutations and queries in Convex
   - Set up authentication context provider in React Native app
