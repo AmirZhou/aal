@@ -1,46 +1,37 @@
+// constants/theme.ts
 export const theme = {
   colors: {
-    primary: '#739877',
-    background: '#FEF8F5',
-    white: '#FFFFFF',
-    black: '#000000',
-    gray: '#666666',
-    lightGray: '#F5F5F5',
-    darkGray: '#333333',
-    text: '#2C2C2C',
-    textSecondary: '#666666',
-    border: '#E0E0E0',
-    success: '#4CAF50',
-    warning: '#FF9800',
-    error: '#F44336',
+    background: "#F5F7FA",
+    white: "#FFFFFF",
+    text: "#111827",
+    textSecondary: "#6B7280",
+    primary: "#2E7CF6",
+    error: "#EF4444"
   },
   spacing: {
     xs: 4,
     sm: 8,
-    md: 16,
-    lg: 24,
-    xl: 32,
-    xxl: 48,
-  },
-  borderRadius: {
-    sm: 4,
-    md: 8,
+    md: 12,
     lg: 16,
-    xl: 24,
+    xl: 24
   },
   fontSize: {
-    xs: 12,
-    sm: 14,
-    md: 16,
-    lg: 18,
+    sm: 13,
+    md: 15,
+    lg: 17,
     xl: 20,
     xxl: 24,
-    xxxl: 32,
+    xxxl: 28
   },
   fontWeight: {
-    normal: '400',
-    medium: '500',
-    semibold: '600',
-    bold: '700',
+    medium: "500" as const,
+    semibold: "600" as const,
+    bold: "700" as const
   },
+  borderRadius: {
+    sm: 8,
+    md: 10,
+    lg: 14
+  }
 };
+export type Theme = typeof theme;
